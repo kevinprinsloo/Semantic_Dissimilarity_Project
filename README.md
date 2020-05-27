@@ -13,10 +13,7 @@ journey =  1     2     4     5    11    12    14    16    20    22    23    26  
 <br/> 
 %===========================================================================<br/> 
 <br/> 
-Attached is a function I use to compute the beta weights. I've written details about the inputs and outputs.<br/> 
- Also attached are the semantic impulse vectors that go as inputs.<br/> 
-<br/> 
-You will also need to reconstruct the speech envelopes using the backwards TRF as the time series data of the<br/> 
+Task reconstruct the speech envelopes using the backwards TRF as the time series data of the<br/> 
  reconstructions themselves also are input to the function. You can do this with the standard backwards TRF<br/> 
  approach on the cocktail party data. I've also attached the speech envelopes for both speech streams just in case.<br/>  
 Also note that everything here is sampled at 64Hz<br/> 
