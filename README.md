@@ -25,3 +25,20 @@ So the goal here I guess would be to estimate beta weights for the attended and 
  This means dividing the subjects into 2 groups based on what they attended to (i.e. a journey and a twenty group)<br/> 
  and running the function 4 times:<br/> 
  Journey with stim = journey,  Journey with stim = twenty,  Twenty with stim= twenty and twenty with stim=journey.<br/> 
+ 
+ ## Cocktail Party Experiment
+
+Files
+eegData: EEG Data, Time Locked to the onset of the speech stimulus.   
+Format: Channels (128) x Time Points
+
+mastoids: Mastoid Channels, Time Locked to the onset of the speech stimulus. 
+Format: Channels (Left=1 Right=2) x Time Points
+
+fs: Sampling Rate 
+
+EEG data is unfiltered, unreferenced and sampled at 128Hz
+
+Experiment Information
+Subjects 1-17 were instructed to attend to 'Twenty Thousand Leagues Under the Sea' (20000), played in the left ear
+Subjects 18-33 were instructed to attend to 'Journey to the Centre of the Earth' (Journey), played in the right ear
