@@ -19,7 +19,6 @@ Attached is a function I use to compute the beta weights. I've written details a
 You will also need to reconstruct the speech envelopes using the backwards TRF as the time series data of the<br/> 
  reconstructions themselves also are input to the function. You can do this with the standard backwards TRF<br/> 
  approach on the cocktail party data. I've also attached the speech envelopes for both speech streams just in case.<br/>  
-<br/> 
 Also note that everything here is sampled at 64Hz<br/> 
 <br/> 
 So the goal here I guess would be to estimate beta weights for the attended and unattended speech streams.<br/> 
