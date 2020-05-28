@@ -7,10 +7,9 @@ Dataset Dryad: https://datadryad.org/stash/landing/show?big=showme&id=doi%3A10.5
 ### Peripheral Notes
 So contrary to what the dryad read me file says the following subjects<br/> 
  (as indexed by their number on dryad) listened to twenty and journey<br/> 
-<br/> 
+
 twenty = 3     6     7     8     9    10    13    15    17    18    19    21    24    25    27    31    32<br/> 
 journey =  1     2     4     5    11    12    14    16    20    22    23    26    28    29    30    33<br/> 
-<br/> 
 ### Task
 reconstruct the speech envelopes using the backwards TRF as the time series data of the<br/> 
 reconstructions themselves also are input to the function. You can do this with the standard backwards TRF<br/> 
