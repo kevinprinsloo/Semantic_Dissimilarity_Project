@@ -4,6 +4,7 @@ function [RR,semSim,lme,amp_std,f0,resolve] = backwardsModel(stim,pred,sem,stim_
 % Runs a seond stage regression with envelope prediction accuracy at the
 % level of words as the dependent variable and various hierarchical
 % features of speech as the predictors. 
+%
 % INPUT:
 % stim : The speech envelope. Cell matrix {1, nTrials}(Samples, 1)
 %

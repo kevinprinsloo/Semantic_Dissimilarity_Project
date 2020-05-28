@@ -267,8 +267,11 @@ for subject_idx = 1%:length(subjects)
             [modelt,t_tx] = mTRFtransform(stim{1,trl},resp{1,trl},w_back,fs,dir,epoch_low_cutoff_SNR_ms,epoch_higher_cutoff_SNR_ms,con);
             model_transfored(trl,:,:) = modelt(:,1:end);
         end
-        time_lags_fw = fliplr(t_trn); % flip time lags used
-                     
+             
+        % Avg transfored backward model
+        trf_bw(1,:) = squeeze(mean(model_transfored));
+        trf_fw(1,:) = squeeze(mean(model_w));
+        
         %% Save ReRef
         % Verify Directory Exists and if Not Create It
         if exist([data_path,'/',study_name,'/','Results','/',condition_name,'/',subjects{subject_idx},'/'],'dir') == 0
@@ -277,7 +280,7 @@ for subject_idx = 1%:length(subjects)
         % Save Figures and Data
         filename = [data_path,'/',study_name,'/','Results','/',condition_name,'/',subjects{subject_idx},'/',...
             'mTRF_output']; filetype = '.mat';
-        save([filename,filetype],'best_labda_selected','recon_eeg','stim_model_reshape','time_lags_fw','-v7.3'); clear filename filetype
+        save([filename,filetype],'best_labda_selected','trf','recon_eeg','stim_model_reshape','trf_bw','trf_fw','-v7.3'); clear filename filetype
         clear eeg_trial        
     end
 end
