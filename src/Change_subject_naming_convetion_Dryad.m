@@ -19,17 +19,16 @@
 %close all
 %clc
 
-%% Prepare variables for Cluster
-% Manually Initialise Variables
+%% Prepare variables
+addpath 'C:\Users\kevin\Documents\Github\Semantic_Dissimilarity_Project\src'
 
-%% Add subfolder/dir
 data_path = 'E:\Semantic_Dissimilarity';
 git_path = 'C:\Users\kevin\Documents\Github\Semantic_Dissimilarity_Project';
 
-% Define study paths
 study_path_E = 'E:\aa_Neuro_Typical_Database';
 study_path = 'Z:\Neurotypical_Response_Inhibition';
 
+%% Manually Initialise Variables
 % Define study folder
 study_name = 'Cocktail_Party';
 
@@ -41,12 +40,12 @@ subejct_listings(end) = [];
 subjects_orig = subejct_listings;
 subjects_number = numel(subjects_orig);
 
-subjects = cell(1,subjects_number);
+subjectsList = cell(1,subjects_number);
 str_1 = 'Subject_';
 for k = 1:subjects_number
     if k < 10 ; str_1 = 'Subject_0'; else
         str_1 = 'Subject_'; end
-    num_holder = num2str(k); subjects{k} = [str_1,num_holder];
+    num_holder = num2str(k); subjectsList{k} = [str_1,num_holder];
 end
 
 % Correction for numerical sorting
@@ -54,7 +53,7 @@ subejct_listings = natsortfiles(subejct_listings);
 subjects_orig = natsortfiles(subjects_orig);
 
 %% Change naming convention to work with other projects
-for subject_idx = 22:subjects_number
+for subject_idx = 1:subjects_number
     subject_orig_name = subjects_orig{subject_idx};
     
     % Make new dir
@@ -74,8 +73,8 @@ for subject_idx = 22:subjects_number
     
     % Rename all files in subject subfolder to match master folder
     for k = 1:length(run_listings)
-        movefile([data_path,'/',study_name,'/','EEG_Data','/',num2str(subjects{subject_idx}),'/',subejct_listings{subject_idx},'_','Run',num2str(k),'.mat'],...
-            [data_path,'/',study_name,'/','EEG_Data','/',num2str(subjects{subject_idx}),'/',num2str(subjects{subject_idx}),'_','Run','_',num2str(k),'.mat']); %
+        movefile([data_path,'/',study_name,'/','EEG_Data','/',num2str(subjects{subject_idx}),'/',subejct_listings{subject_idx},'_','Run',run_listings(k),'.mat'],...
+            [data_path,'/',study_name,'/','EEG_Data','/',num2str(subjects{subject_idx}),'/',num2str(subjects{subject_idx}),'_','Run','_',run_listings(k),'.mat']); %
     end
 end
 
