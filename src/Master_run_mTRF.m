@@ -238,9 +238,7 @@ for subject_idx = 1:length(subjects)
             stim_holder{cross_validation_idx} = modulating_signal_holder_final(1:adjust_data_length)';
             cross_validation_idx = cross_validation_idx+1;
         end
-        
-        lambda_test_values = [1e3,1e4];
-        
+                
         %% Decoding Analysis
         [rho,p_value,MSE,recon_eeg,stim_TRFmodel] = mTRFcrossval_Fix(stim,resp,eeg_sampling_rate_downsampled_Hz,mapping,...
             epoch_low_cutoff_SNR_ms,epoch_higher_cutoff_SNR_ms,lambda_test_values);
@@ -278,7 +276,6 @@ for subject_idx = 1:length(subjects)
         filename = [data_path,'/',study_name,'/','Results','/',condition_name,'/',subjects{subject_idx},'/',...
             'mTRF_output']; filetype = '.mat';
         save([filename,filetype],'best_labda_selected','trf','recon_eeg','stim_model_reshape','-v7.3'); clear filename filetype
-        clear eeg_trial
-        
+        clear eeg_trial        
     end
 end
