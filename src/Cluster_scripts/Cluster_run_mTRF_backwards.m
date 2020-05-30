@@ -27,25 +27,28 @@ addpath  '/scratch/kprinslo/Semantic_Dissimilarity/Cocktail_Party/Scripts/';
 data_path = '/scratch/kprinslo/Semantic_Dissimilarity';
 git_path = '/scratch/kprinslo/Semantic_Dissimilarity';
 pc_path = '/scratch/kprinslo/Semantic_Dissimilarity';
+fprintf('Added paths completed');  
 
 %% Add subfolder/dir
-%addpath 'C:\Users\kevin\Documents\Github\Semantic_Dissimilarity_Project\src'
-%addpath 'C:\Users\kevin\Documents\Github\mTRF_KP_edit\'
-%data_path = 'E:\Semantic_Dissimilarity';
-%git_path = 'C:\Users\kevin\Documents\Github\Semantic_Dissimilarity_Project';
-%pc_path = 'C:\Users\kevin\Documents\Semantic_Dissimilarity';
+% addpath 'C:\Users\kevin\Documents\Github\Semantic_Dissimilarity_Project\src'
+% addpath 'C:\Users\kevin\Documents\Github\mTRF_KP_edit\'
+% data_path = 'E:\Semantic_Dissimilarity';
+% git_path = 'C:\Users\kevin\Documents\Github\Semantic_Dissimilarity_Project';
+% pc_path = 'C:\Users\kevin\Documents\Semantic_Dissimilarity';
 
 % Define study folder
 study_name = 'Cocktail_Party';
 
 % Initialise Subject Variables
-listing = dir([data_path,'/',study_name,'/','EEG_Data','/']);
+%e_path = 'E:/Semantic_Dissimilarity';
+listing = dir(fullfile([pc_path,'/',study_name,'/','Recordings','/']));
 subejct_listings = {listing.name};
 subejct_listings(cellfun('length',subejct_listings)<3) = [];
 subejct_listings(end) = [];
 subjects_orig = subejct_listings;
 subjects_number = numel(subjects_orig);
 subjects = natsortfiles(subjects_orig); % Correction for numerical sorting
+disp(subjects)
 
 % Initialise EEG Variables
 eeg_sampling_rate_original_Hz = 128;
@@ -74,23 +77,29 @@ disp(subject_idx_cluster)
 
 %% mTRF Analysis
 for subject_idx = subject_idx_cluster
+    fprintf('Subject:\t\t\t\t\t\t%s\n',num2str(subject_idx));
+    
     % subject_idx = 1;1:5 %1:length(subjects)
     for condition_idx = 1:length(conditions)
         condition_name = conditions{condition_idx};
-                
-        listing = dir([pc_path,'/',study_name,'/','Recordings','/',num2str(subjects{subject_idx}),'/','*.mat']);
+        fprintf('Condition:\t\t\t\t\t\t%s\n',num2str(condition_idx));
+                                                                
+        listing = dir(fullfile([pc_path,'/',study_name,'/','Recordings','/',subjects{subject_idx},'/'],'*.mat'));
         trial_listings = {listing.name};
         trial_listings = natsortfiles(trial_listings); % Correction for numerical sorting
+        fprintf('trial listing loaded\n');
         
-        listing = dir([pc_path,'/',study_name,'/','Stimuli','/','Envelopes','/',condition_name,'/','*.mat']);
+        listing = dir(fullfile([pc_path,'/',study_name,'/','Stimuli','/','Envelopes_Gammatone','/',condition_name,'/'],'*.mat'));
         stim_listings = {listing.name};
         stim_listings = natsortfiles(stim_listings); % Correction for numerical sorting
+        fprintf('stim listing loaded\n');
         
         % Load EEG Data
         stim = cell(1,length(trial_listings));
         resp = cell(1,length(trial_listings));
         cross_validation_idx = 1;
         for trial_idx = 1:length(trial_listings)
+            fprintf('Trial:\t\t\t\t\t\t%s\n',num2str(trial_idx));
             
             %% >> Load EEG data
             load([pc_path,'/',study_name,'/','Recordings','/',subjects{subject_idx},'/',...
@@ -133,10 +142,12 @@ for subject_idx = subject_idx_cluster
             stim{cross_validation_idx} = modulating_signal_holder_final(1:adjust_data_length)';
             cross_validation_idx = cross_validation_idx+1;
         end
+        fprintf('Data loaded\n');
 
         %% Decoding Analysis
         [rho,p_value,MSE,recon_eeg,stim_TRFmodel] = mTRFcrossval_Fix_final_KP(stim,resp,eeg_sampling_rate_downsampled_Hz,mapping,...
             epoch_low_cutoff_SNR_ms,epoch_higher_cutoff_SNR_ms,lambda_test_values);
+        fprintf('Crossval completed');
         
         % Select optimal lambda
         [best_labda_selected,best_lambda] = max(mean(rho,1));
@@ -144,7 +155,8 @@ for subject_idx = subject_idx_cluster
         % stim_model [ trials by lambdas by chans by lags by feats) ]
         bmodel = squeeze(stim_TRFmodel(:,best_lambda,2:end));  % keep model for best lambda averaged across trials        
         stim_model_reshape = reshape(bmodel,[size(stim_TRFmodel,1),size(resp{1,1},2),size(bmodel,2)/size(resp{1,1},2)]);
-           
+        fprintf('Model reshapeing done');  
+        
         %stim_TRFmodel2 = stim_TRFmodel(:,:,2:end);
         %trf_plot = reshape(stim_TRFmodel2,[size(stim_TRFmodel2,1),size(stim_TRFmodel2,2),size(resp{1,1},2),size(stim_TRFmodel2,3)/size(resp{1,1},2)]);
         %size(trf_plot)
@@ -165,7 +177,8 @@ for subject_idx = subject_idx_cluster
             model_transfored(trl,:,:) = modelt;            
         end
         time_lags_fw = fliplr(t_trn); % flip time lags used
-                     
+        fprintf('Training completed'); 
+        
         %% Save ReRef
         % Verify Directory Exists and if Not Create It
         if exist([pc_path,'/',study_name,'/','Results','/',condition_name,'/',subjects{subject_idx},'/'],'dir') == 0
@@ -177,5 +190,6 @@ for subject_idx = subject_idx_cluster
         save([filename,filetype],'best_labda_selected','recon_eeg','stim_model_reshape','time_lags_fw','model_transfored','-v7.3'); clear filename filetype
         clear eeg_trial resp stim model_w recon_eeg stim_model_reshape time_lags_fw model_transfored bmodel
         clear rho p_value MSE recon_eeg stim_TRFmodel
+        fprintf('Saving'); 
     end
 end
