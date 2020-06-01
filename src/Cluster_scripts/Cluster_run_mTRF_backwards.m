@@ -44,7 +44,6 @@ study_name = 'Cocktail_Party';
 listing = dir(fullfile([pc_path,'/',study_name,'/','Recordings','/']));
 subejct_listings = {listing.name};
 subejct_listings(cellfun('length',subejct_listings)<3) = [];
-subejct_listings(end) = [];
 subjects_orig = subejct_listings;
 subjects_number = numel(subjects_orig);
 subjects = natsortfiles(subjects_orig); % Correction for numerical sorting
@@ -55,20 +54,22 @@ eeg_sampling_rate_original_Hz = 128;
 Fs = eeg_sampling_rate_original_Hz;
 channels_number_cephalic = 128;
 eeg_sampling_rate_downsampled_Hz = 64;
+eeg_trial_length = 60; % secs
+eeg_trial_length_samples = eeg_sampling_rate_downsampled_Hz*eeg_trial_length;
 
 % Define conditions
 conditions = {'20000','Journey'};
 
 % Define mTRF paramters
 mapping = -1; % Backwards [-1] | Forwards [1]
-start = -200;
+start = 00;
 fin = 800;
 singleLags = unique([start:5:fin,0:5:500]);
 lambda_test_values = 2.^(2:2:30);
 lambda_value_plotting = 1e3; % 1e2
 multivariate_dimensions_number = 1; % define if multivariate (define n) or univariate (=1);
 baseline_correction_TRF = 'BC'; % NA - for no BL TRF correction
-epoch_higher_cutoff_SNR_ms = 600;
+epoch_higher_cutoff_SNR_ms = 800;
 epoch_low_cutoff_SNR_ms = 0;
 
 % Cluster parallel definition
@@ -89,11 +90,6 @@ for subject_idx = subject_idx_cluster
         trial_listings = natsortfiles(trial_listings); % Correction for numerical sorting
         fprintf('trial listing loaded\n');
         
-        listing = dir(fullfile([pc_path,'/',study_name,'/','Stimuli','/','Envelopes_Gammatone','/',condition_name,'/'],'*.mat'));
-        stim_listings = {listing.name};
-        stim_listings = natsortfiles(stim_listings); % Correction for numerical sorting
-        fprintf('stim listing loaded\n');
-        
         % Load EEG Data
         stim = cell(1,length(trial_listings));
         resp = cell(1,length(trial_listings));
@@ -101,21 +97,22 @@ for subject_idx = subject_idx_cluster
         for trial_idx = 1:length(trial_listings)
             fprintf('Trial:\t\t\t\t\t\t%s\n',num2str(trial_idx));
             
+            % Deal with missing trials - index which stim to load that matches EEG
+            str = trial_listings{trial_idx};
+            str = str(12:end-4);
+            stim_trial = string(regexp(str,'\d*','Match'));
+            
             %% >> Load EEG data
             load([pc_path,'/',study_name,'/','Recordings','/',subjects{subject_idx},'/',...
-                trial_listings{trial_idx}],'eeg_trial');
+                subjects{subject_idx},'_','Run',stim_trial{1},'.mat'],'eeg_trial');
             
             % Z-score EEG
             eeg_trial = eeg_trial';
             eeg_trial = zscore(eeg_trial(:,1:128));
-            
-            % Deal with missing trials - index which stim to load that matches EEG
-            str = trial_listings{trial_idx};
-            str = str(9:end-4); stim_trial = string(regexp(str,'\d*','Match'));
-            
+                        
             % Load modulating signal
-            load([pc_path,'/',study_name,'/','Stimuli','/','Envelopes','/',condition_name,'/',...
-                stim_listings{trial_idx}],'envelope');
+            load([pc_path,'/',study_name,'/','Stimuli','/','Envelopes_Gammatone','/',condition_name,'/',...
+                condition_name,'_',stim_trial{1},'_env.mat'],'envelope');
             
             % Convert Gamma tone filterbank envelope to dB SPL
             clear modulating_signal_voltage modulating_signal_voltage_temp modulating_signal_SPL_from_voltage modulating_signal_holder
@@ -126,20 +123,18 @@ for subject_idx = subject_idx_cluster
             modulating_signal_SPL_from_voltage = 20*log10(modulating_signal_voltage_temp); clear modulating_signal_voltage_temp
             modulating_signal_SPL_from_voltage = modulating_signal_SPL_from_voltage-min(modulating_signal_SPL_from_voltage);
             modulating_signal_holder_converted = modulating_signal_SPL_from_voltage/max(modulating_signal_SPL_from_voltage);
-            
-            % Downsample modulating signal
-            modulating_signal_holder_converted = modulating_signal_holder_converted';
-            modulating_signal_holder_final = resample(modulating_signal_holder_converted,eeg_sampling_rate_downsampled_Hz,eeg_sampling_rate_original_Hz); %#ok<*SAGROW>
-            clear modulating_signal_holder_converted
-            
+                        
             % check data is the same sime
-            stim_s = length(modulating_signal_holder_final);
+            stim_s = length(modulating_signal_holder_converted);
             eeg_s = size(eeg_trial,1);
             adjust_data_length = min(stim_s,eeg_s);
+            if adjust_data_length > eeg_trial_length_samples
+                adjust_data_length = eeg_trial_length_samples;
+            end
             
             %% Store Data
             resp{cross_validation_idx} = eeg_trial(1:adjust_data_length,1:128); clear eeg_trial
-            stim{cross_validation_idx} = modulating_signal_holder_final(1:adjust_data_length)';
+            stim{cross_validation_idx} = modulating_signal_holder_converted(1:adjust_data_length)';
             cross_validation_idx = cross_validation_idx+1;
         end
         fprintf('Data loaded\n');
@@ -187,7 +182,7 @@ for subject_idx = subject_idx_cluster
         % Save Figures and Data
         filename = [pc_path,'/',study_name,'/','Results','/',condition_name,'/',subjects{subject_idx},'/',...
             'mTRF_output']; filetype = '.mat';
-        save([filename,filetype],'best_labda_selected','recon_eeg','stim_model_reshape','time_lags_fw','model_transfored','-v7.3'); clear filename filetype
+        save([filename,filetype],'stim','best_labda_selected','recon_eeg','stim_model_reshape','time_lags_fw','model_transfored','-v7.3'); clear filename filetype
         clear eeg_trial resp stim model_w recon_eeg stim_model_reshape time_lags_fw model_transfored bmodel
         clear rho p_value MSE recon_eeg stim_TRFmodel
         fprintf('Saving'); 

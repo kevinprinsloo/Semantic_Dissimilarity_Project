@@ -39,9 +39,11 @@ ft_defaults
 %% Add subfolder/dir
 %addpath 'C:\Users\kevin\Documents\Github\Semantic_Dissimilarity_Project\src'
 %addpath 'C:\Users\kevin\Documents\Github\mTRF_KP_edit\'
-%data_path = 'E:\Semantic_Dissimilarity';
+% data_path = 'E:\Semantic_Dissimilarity';
 %git_path = 'C:\Users\kevin\Documents\Github\Semantic_Dissimilarity_Project';
 %pc_path = 'C:\Users\kevin\Documents\Semantic_Dissimilarity';
+
+ data_path = 'C:\Users\kevin\Documents\Semantic_Dissimilarity';
 
 % Define study folder
 study_name = 'Cocktail_Party';
@@ -50,7 +52,6 @@ study_name = 'Cocktail_Party';
 listing = dir([data_path,'/',study_name,'/','EEG_Data','/']);
 subejct_listings = {listing.name};
 subejct_listings(cellfun('length',subejct_listings)<3) = [];
-subejct_listings(end) = [];
 subjects_orig = subejct_listings;
 subjects_number = numel(subjects_orig);
 subjects = natsortfiles(subjects_orig); % Correction for numerical sorting
@@ -81,7 +82,7 @@ subject_idx_cluster = str2double(getenv('SLURM_ARRAY_TASK_ID'));  % this give's 
 disp(subject_idx_cluster)
 
 %% mTRF Analysis
-for subject_idx = subject_idx_cluster
+for subject_idx = 1:33
     
     listing = dir([data_path,'/',study_name,'/','EEG_Data','/',num2str(subjects{subject_idx}),'/','*.mat']);
     trial_listings = {listing.name};

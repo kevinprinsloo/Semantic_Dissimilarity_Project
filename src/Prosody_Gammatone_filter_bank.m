@@ -88,7 +88,7 @@ GCparam.OutMidCrct = 'ELC';
 % GCparam.OutMidCrct = 'No';
 % GCparam.Ctrl = 'dyn';
 
-for condition_idx = 1
+for condition_idx = 1:2
     condition_name = conditions{condition_idx};
     
     % List .wav files
@@ -104,11 +104,11 @@ for condition_idx = 1
         % Load in .wav file.
         [y, wav_fs] = audioread([data_path,'/',study_name,'/','Stimuli','/','Wav_files','/',condition_name,'/',...
             stim_listings{stim_idx}]);
-        
+      
         % Compute f0
         eeg_fs = 64;
-        [f0, t] = get_f0_praat_sm(y', wav_fs, eeg_fs);
-        
+        [f0, t] = get_f0_praat_sm(y, wav_fs, eeg_fs);
+                
         % Compute resolvability
         [f_rel, res] = measure_prosody_sm(file_name, file_directory, eeg_fs);
         
