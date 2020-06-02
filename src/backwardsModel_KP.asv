@@ -1,4 +1,4 @@
-function [RR,semSim,lme,amp_std,f0,resolve] = backwardsModel(stim,pred,sem,stim_e_f_r,Fs,tWind)
+function [RR,semSim,lme,amp_std,f0,resolve] = backwardsModel_KP(stim,pred,sem,stim_e_f_r,Fs,tWind)
 
 % [RR,semSim,lme,amp_std,f0,resolve] = backwardsModel(stim,pred,sem,stim_e_f_r,c,Fs,tWind)
 % Runs a seond stage regression with envelope prediction accuracy at the
@@ -8,7 +8,8 @@ function [RR,semSim,lme,amp_std,f0,resolve] = backwardsModel(stim,pred,sem,stim_
 % INPUT:
 % stim : The speech envelope. Cell matrix {1, nTrials}(Samples, 1)
 %
-% pred : Time series of the predicted speech envelope based on the backwards TRF. This can be computed with mTRFpredict/ mTRFtrain or mTRFcrossval. {1,nTrials}(Samples,
+% pred : Time series of the predicted speech envelope based on the backwards TRF.
+% This can be computed with mTRFpredict/ mTRFtrain or mTRFcrossval. {1,nTrials}(Samples,
 % nSubjects)
 %
 % sem : Semantic Similarity as an impulse vector. Note this must be
@@ -40,8 +41,7 @@ function [RR,semSim,lme,amp_std,f0,resolve] = backwardsModel(stim,pred,sem,stim_
 % Michael Broderick 2019
 
 c=zeros(length(stim)+1,1);
-windL=0.1;
-
+windL = .1 % orig = 0.1;
 
 for i=1:length(stim)
     
@@ -79,6 +79,10 @@ for wind=tWind
             end
         end
     end
+    
+    tmp = stim{runs}((f(i):f(i)+ceil(windL*Fs))+wind);
+    tmp2 = pred{runs}((f(i):f(i)+ceil(windL*Fs))+wind,s)
+    
     
     semSim(1:end-1)=1-semSim(2:end);
     x1=zscore(semSim);x1=repmat(x1,[size(RR,2),1]);
