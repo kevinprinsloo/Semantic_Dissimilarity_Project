@@ -62,15 +62,12 @@ conditions = {'20000','Journey'};
 
 % Define mTRF paramters
 mapping = -1; % Backwards [-1] | Forwards [1]
-start = 00;
-fin = 800;
-singleLags = unique([start:5:fin,0:5:500]);
 lambda_test_values = 2.^(2:2:30);
 lambda_value_plotting = 1e3; % 1e2
 multivariate_dimensions_number = 1; % define if multivariate (define n) or univariate (=1);
 baseline_correction_TRF = 'BC'; % NA - for no BL TRF correction
-epoch_higher_cutoff_SNR_ms = 800;
-epoch_low_cutoff_SNR_ms = 0;
+epoch_low_cutoff_SNR_ms = -100;
+epoch_higher_cutoff_SNR_ms = 400;
 
 % Cluster parallel definition
 subject_idx_cluster = str2double(getenv('SLURM_ARRAY_TASK_ID'));  % this give's you back the job parameter from slurm (#SBATCH --array=1-16)
@@ -85,7 +82,7 @@ for subject_idx = subject_idx_cluster
         condition_name = conditions{condition_idx};
         fprintf('Condition:\t\t\t\t\t\t%s\n',num2str(condition_idx));
                                                                 
-        listing = dir(fullfile([pc_path,'/',study_name,'/','Recordings','/',subjects{subject_idx},'/'],'*.mat'));
+        listing = dir(fullfile([pc_path,'/',study_name,'/','Recordings_8Hz','/',subjects{subject_idx},'/'],'*.mat'));
         trial_listings = {listing.name};
         trial_listings = natsortfiles(trial_listings); % Correction for numerical sorting
         fprintf('trial listing loaded\n');
@@ -103,7 +100,7 @@ for subject_idx = subject_idx_cluster
             stim_trial = string(regexp(str,'\d*','Match'));
             
             %% >> Load EEG data
-            load([pc_path,'/',study_name,'/','Recordings','/',subjects{subject_idx},'/',...
+            load([pc_path,'/',study_name,'/','Recordings_8Hz','/',subjects{subject_idx},'/',...
                 subjects{subject_idx},'_','Run',stim_trial{1},'.mat'],'eeg_trial');
             
             % Z-score EEG
@@ -114,7 +111,7 @@ for subject_idx = subject_idx_cluster
             load([pc_path,'/',study_name,'/','Stimuli','/','Envelopes_Gammatone','/',condition_name,'/',...
                 condition_name,'_',stim_trial{1},'_env.mat'],'envelope');
             
-            % Convert Gamma tone filterbank envelope to dB SPL
+            %% Convert Gamma tone filterbank envelope to dB SPL
             clear modulating_signal_voltage modulating_signal_voltage_temp modulating_signal_SPL_from_voltage modulating_signal_holder
             clear  modulating_signal_holder2  modulating_signal_holder3
             modulating_signal_voltage = envelope; %#ok<*SAGROW>
@@ -123,6 +120,10 @@ for subject_idx = subject_idx_cluster
             modulating_signal_SPL_from_voltage = 20*log10(modulating_signal_voltage_temp); clear modulating_signal_voltage_temp
             modulating_signal_SPL_from_voltage = modulating_signal_SPL_from_voltage-min(modulating_signal_SPL_from_voltage);
             modulating_signal_holder_converted = modulating_signal_SPL_from_voltage/max(modulating_signal_SPL_from_voltage);
+
+            %envelope = envelope';
+            %modulating_signal_norm = envelope-min(envelope);
+            %modulating_signal_holder_converted = modulating_signal_norm/max(modulating_signal_norm);
                         
             % check data is the same sime
             stim_s = length(modulating_signal_holder_converted);
@@ -140,20 +141,36 @@ for subject_idx = subject_idx_cluster
         fprintf('Data loaded\n');
 
         %% Decoding Analysis
-        [rho,p_value,MSE,recon_eeg,stim_TRFmodel] = mTRFcrossval_Fix_final_KP(stim,resp,eeg_sampling_rate_downsampled_Hz,mapping,...
+        [rho,p_value,MSE,recon_stim,TRFmodel] = mTRFcrossval_Fix_final_KP(stim,resp,eeg_sampling_rate_downsampled_Hz,mapping,...
             epoch_low_cutoff_SNR_ms,epoch_higher_cutoff_SNR_ms,lambda_test_values);
         fprintf('Crossval completed');
-        
+                
         % Select optimal lambda
-        [best_labda_selected,best_lambda] = max(mean(rho,1));
+        [~,best_lambda] = max(mean(rho,1));        
+        for k = 1:size(rho,1)
+            [best_labda_selected_hd(k),best_lambda_hd(k)] = max(rho(k,:));
+        end
+        best_labda_selected = max(best_labda_selected_hd);
+         
+        % Choose best reconstructed stimulus feature
+        clear tmp
+        for k = 1:length(trial_listings)
+            recon_stim_best_lambda{k} = recon_stim{k}(best_lambda_hd(k),:);
+        end
+        
+        % Choose best reconstructed stimulus feature
+        clear tmp
+        for k = 1:length(trial_listings)
+            recon_stim_best_lambda_trls{k} = recon_stim{k}(best_lambda,:);
+        end
         
         % stim_model [ trials by lambdas by chans by lags by feats) ]
-        bmodel = squeeze(stim_TRFmodel(:,best_lambda,2:end));  % keep model for best lambda averaged across trials        
-        stim_model_reshape = reshape(bmodel,[size(stim_TRFmodel,1),size(resp{1,1},2),size(bmodel,2)/size(resp{1,1},2)]);
+        bmodel = squeeze(TRFmodel(:,best_lambda,2:end));  % keep model for best lambda averaged across trials        
+        stim_model_reshape = reshape(bmodel,[size(TRFmodel,1),size(resp{1,1},2),size(bmodel,2)/size(resp{1,1},2)]);
         fprintf('Model reshapeing done');  
         
-        %stim_TRFmodel2 = stim_TRFmodel(:,:,2:end);
-        %trf_plot = reshape(stim_TRFmodel2,[size(stim_TRFmodel2,1),size(stim_TRFmodel2,2),size(resp{1,1},2),size(stim_TRFmodel2,3)/size(resp{1,1},2)]);
+        %TRFmodel2 = TRFmodel(:,:,2:end);
+        %trf_plot = reshape(TRFmodel2,[size(TRFmodel2,1),size(TRFmodel2,2),size(resp{1,1},2),size(TRFmodel2,3)/size(resp{1,1},2)]);
         %size(trf_plot)
         
         % >> Transform decoder weights to forward model
@@ -176,15 +193,15 @@ for subject_idx = subject_idx_cluster
         
         %% Save ReRef
         % Verify Directory Exists and if Not Create It
-        if exist([pc_path,'/',study_name,'/','Results','/',condition_name,'/',subjects{subject_idx},'/'],'dir') == 0
-            mkdir([pc_path,'/',study_name,'/','Results','/',condition_name,'/',subjects{subject_idx},'/']);
+        if exist([pc_path,'/',study_name,'/','Results_G_SPL_8Hz','/',condition_name,'/',subjects{subject_idx},'/'],'dir') == 0
+            mkdir([pc_path,'/',study_name,'/','Results_G_SPL_8Hz','/',condition_name,'/',subjects{subject_idx},'/']);
         end
         % Save Figures and Data
-        filename = [pc_path,'/',study_name,'/','Results','/',condition_name,'/',subjects{subject_idx},'/',...
+        filename = [pc_path,'/',study_name,'/','Results_G_SPL_8Hz','/',condition_name,'/',subjects{subject_idx},'/',...
             'mTRF_output']; filetype = '.mat';
-        save([filename,filetype],'stim','best_labda_selected','recon_eeg','stim_model_reshape','time_lags_fw','model_transfored','-v7.3'); clear filename filetype
-        clear eeg_trial resp stim model_w recon_eeg stim_model_reshape time_lags_fw model_transfored bmodel
-        clear rho p_value MSE recon_eeg stim_TRFmodel
+        save([filename,filetype],'rho','stim','best_labda_selected','recon_stim_best_lambda_trls','best_lambda_hd','recon_stim','recon_stim_best_lambda','stim_model_reshape','time_lags_fw','model_transfored','-v7.3'); clear filename filetype
+        clear eeg_trial resp stim model_w recon_stim stim_model_reshape time_lags_fw model_transfored bmodel
+        clear rho p_value MSE recon_stim TRFmodel
         fprintf('Saving'); 
     end
 end

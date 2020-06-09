@@ -22,6 +22,10 @@ function [words, semanticDissim,wordVectors, fullStopPos,WPS]=calculateSemanticD
 
 
 %Read in the Text
+
+aa = load(filename)
+
+
 [ words,fsp ] = readText( filename,1 );
 [ words1 ] = readText( filename,0 );
 fullStopPos=[];

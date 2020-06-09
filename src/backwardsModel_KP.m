@@ -41,7 +41,7 @@ function [RR,semSim,lme,amp_std,f0,resolve] = backwardsModel_KP(stim,pred,sem,st
 % Michael Broderick 2019
 
 c=zeros(length(stim)+1,1);
-windL = .1 % orig = 0.1;
+windL = 0.1; % orig = 0.1;
 
 for i=1:length(stim)
     
@@ -74,13 +74,15 @@ for wind=tWind
                 amp_std(i+sum(c(1:runs)))=std(stim{runs}((f(i):f(i)+ceil(windL*Fs))+wind));
                 f0(i+sum(c(1:runs)))=mean(stim_e_f_r{runs}((f(i):f(i)+ceil(windL*Fs))+wind,2));
                 resolve(i+sum(c(1:runs)))=mean(stim_e_f_r{runs}((f(i):f(i)+ceil(windL*Fs))+wind,3));
-                RR(i+sum(c(1:runs)),s,count)=corr(stim{runs}((f(i):f(i)+ceil(windL*Fs))+wind),pred{runs}((f(i):f(i)+ceil(windL*Fs))+wind,s),'Type','Spearman');
+                RR(i+sum(c(1:runs)),s,count)=corr(stim{runs}((f(i):f(i)+ceil(windL*Fs))+wind),pred{runs}((f(i):f(i)+ceil(windL*Fs))+wind,s),'Type','Pearson');
                 
             end
         end
     end
     
     %tmp = stim{runs}((f(i):f(i)+ceil(windL*Fs))+wind);
+    %tmp2 = pred{runs}((f(i):f(i)+ceil(windL*Fs))+wind,s)
+    
     
     semSim(1:end-1)=1-semSim(2:end);
     x1=zscore(semSim);x1=repmat(x1,[size(RR,2),1]);
@@ -88,6 +90,7 @@ for wind=tWind
     x3=zscore(f0);x3=repmat(x3,[size(RR,2),1]);
     x4=zscore(resolve);x4=repmat(x4,[size(RR,2),1]);
     X=[x1,x2,x3,x4,x1.*x2,x3.*x4];
+    %X=[x1,x2,x1.*x2];
     Y=RR(:,:,count);Y=Y(:);
     Z=ones(size(Y));
     u=ones(length(semSim),1)*(1:size(RR,2));u=u(:);
