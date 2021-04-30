@@ -81,7 +81,7 @@ lpf = design(h,'cheby2','MatchExactly','stopband'); clear h
 % fvtool(hpf,lpf)
 
 %% Preprocess data
-for subject_idx = 15 %1:length(subjects)
+for subject_idx = 32 %1:length(subjects)
     
     listing = dir([data_path,'/',study_name,'/','EEG_Data','/',num2str(subjects{subject_idx}),'/','*.mat']);
     trial_listings = {listing.name};
@@ -318,7 +318,7 @@ for subject_idx = 15 %1:length(subjects)
     
     % remove appropriate components
     cfg = [];
-    cfg.component = [1 2 3 4 8 ]; % NB! these should only be the eye related components
+    cfg.component = [1 3 4 5 11 15 21 22 23 26 30]; % NB! these should only be the eye related components
     cfg.demean = 'no';
     ica_removed = ft_rejectcomponent(cfg, ica, data);
     close all
