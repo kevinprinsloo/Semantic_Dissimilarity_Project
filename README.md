@@ -2,6 +2,18 @@
 
 ![This is an image](https://github.com/kevinprinsloo/Semantic_Dissimilarity_Project/blob/master/Semantic_decoding_methods_size.jpg)
 
+### Introduction
+
+There is continued debate on whether context-based predictions of upcoming words feed back to affect the acoustic processing of speech, especially in the context of natural, continuous speech.1,2,3
+
+Recently, using narrative speech, our group showed that the more semantically similar a word is to its preceding context, the better it is encoded at acoustic-phonetic levels, providing evidence of an influence of top-down feedback.4,5
+
+Here, we aim to replicate this finding in the context of a cocktail-party attention experiment. 
+
+Doing so would allows us to confirm that our result is genuinely driven by top-down predictive activity and not by any confounding acoustic-linguistic correlations.
+![image](https://user-images.githubusercontent.com/37871467/160858965-4f88f179-8d0c-49a5-8130-7d131f7c1518.png)
+
+
 ### Websites
 GloVe: Global Vectors for Word Representation: https://nlp.stanford.edu/projects/glove/<br/> 
 Dataset Dryad: https://datadryad.org/stash/landing/show?big=showme&id=doi%3A10.5061%2Fdryad.070jc<br/>
