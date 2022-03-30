@@ -13,7 +13,6 @@ Here, we aim to replicate this finding in the context of a cocktail-party attent
 Doing so would allows us to confirm that our result is genuinely driven by top-down predictive activity and not by any confounding acoustic-linguistic correlations.
 ![image](https://user-images.githubusercontent.com/37871467/160858965-4f88f179-8d0c-49a5-8130-7d131f7c1518.png)
 
-
 ### Websites
 GloVe: Global Vectors for Word Representation: https://nlp.stanford.edu/projects/glove/<br/> 
 Dataset Dryad: https://datadryad.org/stash/landing/show?big=showme&id=doi%3A10.5061%2Fdryad.070jc<br/>
