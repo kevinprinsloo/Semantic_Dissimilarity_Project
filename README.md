@@ -1,5 +1,6 @@
 # Semantic_Dissimilarity_Project
 
+![This is an image](https://github.com/kevinprinsloo/Semantic_Dissimilarity_Project/blob/master/Semantic_decoding_methods_size.jpg)
 
 ### Websites
 GloVe: Global Vectors for Word Representation: https://nlp.stanford.edu/projects/glove/<br/> 
