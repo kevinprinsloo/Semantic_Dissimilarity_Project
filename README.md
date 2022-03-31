@@ -25,7 +25,7 @@ GloVe: Global Vectors for Word Representation: https://nlp.stanford.edu/projects
 Dataset Dryad: https://datadryad.org/stash/landing/show?big=showme&id=doi%3A10.5061%2Fdryad.070jc<br/>
 <br/>
 ### Peripheral Notes
-So contrary to what the dryad read me file says the following subjects<br/> 
+So contrary to what the dryad readme file says the following subjects<br/> 
  (as indexed by their number on dryad) listened to twenty and journey<br/> 
 
 twenty = 3     6     7     8     9    10    13    15    17    18    19    21    24    25    27    31    32<br/> 
