@@ -245,7 +245,7 @@ Format: Channels (128) x Time Points
 mastoids: Mastoid Channels, Time Locked to the onset of the speech stimulus. 
 Format: Channels (Left=1 Right=2) x Time Points
 
-fs: Sampling Rate 
+fs: Sampling Rate
 
 EEG data is unfiltered, unreferenced and sampled at 128Hz
 
