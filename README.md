@@ -34,8 +34,9 @@ mTRF-Toolbox provides a complementary forward/backward quantitative modelling fr
 
 A backward model, known as a neural decoder, reverses the direction of causality between stimulus and response. Neural decoders can be used to reconstruct stimulus features from information encoded explicitly or implicitly in neuronal activity, or decode higher-order cognitive processes such as top-down attention. The mTRF modelling framework provides a basic machine learning platform for real-time BCI applications such as stimulus reconstruction/synthesis and auditory attention decoding (AAD).
 
+
 <div align="center">
-  <img src="docs/mTRF_modelling_framework.PNG">
+  <img src="docs/mTRF_modelling_framework.png">
 </div>
 
 ## Contents
@@ -96,7 +97,7 @@ subplot(2,2,4), mTRFplot(model,'gfp','all','all',[-50,350]);
 title('Global Field Power')
 ```
 
-<img src="docs/STRF_example.PNG">
+<img src="docs/STRF_example.png">
 
 ### Stimulus reconstruction
 
@@ -167,7 +168,7 @@ set(gca,'xtick',1:2,'xticklabel',{'Val.','Test'}), axis square, grid on
 title('Model Performance'), xlabel('Dataset'), ylabel('Correlation')
 ```
 
-<img src="docs/stim_recon_example.PNG">
+<img src="docs/stim_recon_example.png">
 
 ### Single-lag decoder analysis
 
@@ -220,7 +221,7 @@ plot(-fliplr(t),fliplr(merr),'linewidth',2), hold off
 title('Reconstruction Error'), xlabel('Time lag (ms)'), ylabel('MSE')
 ```
 
-<img src="docs/single_lag_analysis_example.PNG">
+<img src="docs/single_lag_analysis_example.png">
 
 twenty = 3     6     7     8     9    10    13    15    17    18    19    21    24    25    27    31    32<br/> 
 journey =  1     2     4     5    11    12    14    16    20    22    23    26    28    29    30    33<br/> 
